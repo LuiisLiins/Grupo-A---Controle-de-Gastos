@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gestaodegastos/perfil.dart';
 
+import 'historico_transacoes.dart';
 import 'models/usuario.dart';
 import 'myhomepage.dart';
+import 'transacao.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -22,13 +24,22 @@ class _MyAppState extends State<MyApp> {
     criadoEm: DateTime(2024, 1, 1),
   );
 
-  int _currentIndex = 0; // Índice da tela atual
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  int _currentIndex = 0;
 
-  // List of pages to navigate
   List<Widget> get _pages => [
-    const MyHomePage(title: 'Página Inicial'),
-    Container(color: Colors.blue),
-    Container(color: Colors.green),
+    MyHomePage(
+      title: 'Página Inicial',
+      onOpenHistorico: () => _onItemTapped(1),
+      onOpenRelatorios: () => _onItemTapped(2),
+      onOpenPerfil: () => _onItemTapped(3),
+      onAddTransaction: _openTransactionScreen,
+    ),
+    const HistoricoPage(
+      showBackButton: false,
+      showBottomNavigationBar: false,
+    ),
+    const _ReportsPlaceholder(),
     PerfilScreen(
       usuario: _usuarioMock,
       showBackButton: false,
@@ -36,23 +47,32 @@ class _MyAppState extends State<MyApp> {
     ),
   ];
 
-  // Função para alternar as telas
   void _onItemTapped(int index) {
     setState(() {
-      _currentIndex = index; // Atualiza o índice da tela selecionada
+      _currentIndex = index;
     });
+  }
+
+  void _openTransactionScreen() {
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (context) => const TransacaoScreen(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      navigatorKey: _navigatorKey,
+      title: 'Controle de Gastos',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: _primaryBlue),
       ),
       home: Scaffold(
         extendBody: true,
-        body: _pages[_currentIndex], // Exibe a tela baseada no índice
+        body: _pages[_currentIndex],
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Container(
           height: 72,
@@ -68,7 +88,7 @@ class _MyAppState extends State<MyApp> {
             ],
           ),
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: _openTransactionScreen,
             backgroundColor: _primaryBlue,
             elevation: 0,
             shape: const CircleBorder(),
@@ -190,6 +210,63 @@ class _NavItem extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportsPlaceholder extends StatelessWidget {
+  const _ReportsPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0D101828),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.bar_chart_rounded,
+                    size: 48,
+                    color: _MyAppState._primaryBlue,
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'Relatórios em breve',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Esta área seguirá o mesmo layout principal do aplicativo.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Color(0xFF667085)),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
