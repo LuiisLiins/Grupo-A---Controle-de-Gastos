@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HistoricoPage extends StatefulWidget {
   const HistoricoPage({
@@ -100,7 +101,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
                   Icons.arrow_back_ios_new_rounded,
                   color: Colors.black87,
                 ),
-                onPressed: () => Navigator.maybePop(context),
+                onPressed: () => context.pop(),
               )
             : null,
         centerTitle: true,

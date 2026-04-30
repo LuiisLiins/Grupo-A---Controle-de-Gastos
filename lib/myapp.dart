@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gestaodegastos/perfil.dart';
 
 import 'historico_transacoes.dart';
 import 'models/usuario.dart';
 import 'myhomepage.dart';
 import 'transacao.dart';
+
+// Defina as rotas como constantes para evitar erros de digitação
+class AppRoutes {
+  static const home = '/';
+  static const historico = '/historico';
+  static const relatorios = '/relatorios';
+  static const perfil = '/perfil';
+  static const transacao = '/transacao';
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -24,81 +34,137 @@ class _MyAppState extends State<MyApp> {
     criadoEm: DateTime(2024, 1, 1),
   );
 
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  int _currentIndex = 0;
+  // Configuração do GoRouter
+  late final GoRouter _router;
 
-  List<Widget> get _pages => [
-    MyHomePage(
-      title: 'Página Inicial',
-      onOpenHistorico: () => _onItemTapped(1),
-      onOpenRelatorios: () => _onItemTapped(2),
-      onOpenPerfil: () => _onItemTapped(3),
-      onAddTransaction: _openTransactionScreen,
-    ),
-    const HistoricoPage(
-      showBackButton: false,
-      showBottomNavigationBar: false,
-    ),
-    const _ReportsPlaceholder(),
-    PerfilScreen(
-      usuario: _usuarioMock,
-      showBackButton: false,
-      showBottomNavigationBar: false,
-    ),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  void _openTransactionScreen() {
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (context) => const TransacaoScreen(),
-      ),
+  @override
+  void initState() {
+    super.initState();
+    _router = GoRouter(
+      initialLocation: AppRoutes.home,  // Rota inicial
+      routes: [
+        // Rota da página inicial com shell para BottomNavigationBar
+        ShellRoute(
+          builder: (context, state, child) => _MainScaffold(child: child),
+          routes: [
+            GoRoute(
+              path: AppRoutes.home,
+              builder: (context, state) => MyHomePage(
+                title: 'Página Inicial',
+                onOpenHistorico: () => context.go(AppRoutes.historico),
+                onOpenRelatorios: () => context.go(AppRoutes.relatorios),
+                onOpenPerfil: () => context.go(AppRoutes.perfil),
+                onAddTransaction: () => context.go(AppRoutes.transacao),
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.historico,
+              builder: (context, state) => const HistoricoPage(
+                showBackButton: true,
+                showBottomNavigationBar: false,
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.relatorios,
+              builder: (context, state) => const _ReportsPlaceholder(),
+            ),
+            GoRoute(
+              path: AppRoutes.perfil,
+              builder: (context, state) => PerfilScreen(
+                usuario: _usuarioMock,
+                showBackButton: true,
+                showBottomNavigationBar: false,
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: AppRoutes.transacao,
+          builder: (context, state) => const TransacaoScreen(),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
+    return MaterialApp.router(
+      routerConfig: _router,
       title: 'Controle de Gastos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: _primaryBlue),
       ),
-      home: Scaffold(
-        extendBody: true,
-        body: _pages[_currentIndex],
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: Container(
-          height: 72,
-          width: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: _primaryBlue.withValues(alpha: 0.28),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: FloatingActionButton(
-            onPressed: _openTransactionScreen,
-            backgroundColor: _primaryBlue,
-            elevation: 0,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.add, size: 34, color: Colors.white),
-          ),
+    );
+  }
+}
+
+class _MainScaffold extends StatefulWidget {
+  const _MainScaffold({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends State<_MainScaffold> {
+  int _currentIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    switch (index) {
+      case 0:
+        context.go(AppRoutes.home);
+        break;
+      case 1:
+        context.go(AppRoutes.historico);
+        break;
+      case 2:
+        context.go(AppRoutes.relatorios);
+        break;
+      case 3:
+        context.go(AppRoutes.perfil);
+        break;
+    }
+  }
+
+  void _openTransactionScreen() {
+    context.go(AppRoutes.transacao);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true,
+      body: widget.child,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Container(
+        height: 72,
+        width: 72,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: _MyAppState._primaryBlue.withValues(alpha: 0.28),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        bottomNavigationBar: _BottomNavBar(
-          currentIndex: _currentIndex,
-          onTap: _onItemTapped,
+        child: FloatingActionButton(
+          onPressed: _openTransactionScreen,
+          backgroundColor: _MyAppState._primaryBlue,
+          elevation: 0,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, size: 34, color: Colors.white),
         ),
+      ),
+      bottomNavigationBar: _BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onItemTapped,
       ),
     );
   }

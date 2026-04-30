@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:go_router/go_router.dart';
 import 'models/usuario.dart';
 
 class PerfilScreen extends StatefulWidget {
@@ -21,366 +21,135 @@ class PerfilScreen extends StatefulWidget {
 class _PerfilScreenState extends State<PerfilScreen> {
   String get _initial {
     final nome = widget.usuario.nome.trim();
-    if (nome.isEmpty) {
-      return '?';
-    }
+    if (nome.isEmpty) return '?';
     return nome[0].toUpperCase();
+  }
+
+  void _voltar() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        centerTitle: true,
         leading: widget.showBackButton
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.blue),
-                onPressed: () => Navigator.pop(context),
+                onPressed: _voltar,
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.black,
+                ),
               )
             : null,
         title: const Text(
           'Perfil',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.blue),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 30),
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              color: Colors.grey[100],
-              padding: const EdgeInsets.symmetric(vertical: 30),
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFE6ECF5)),
+                ),
+              ),
               child: Column(
                 children: [
-                  Stack(
-                    children: [
-                      Container(
-                        width: 140,
-                        height: 140,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 4),
-                          borderRadius: BorderRadius.circular(70),
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.orange[200],
-                          child: Text(
-                            _initial,
-                            style: const TextStyle(
-                              fontSize: 60,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                  CircleAvatar(
+                    radius: 52,
+                    backgroundColor: Colors.blue,
+                    child: Text(
+                      _initial,
+                      style: const TextStyle(
+                        fontSize: 42,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const Positioned(
-                        bottom: 5,
-                        right: 5,
-                        child: _EditAvatarButton(),
-                      ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   Text(
                     widget.usuario.nome,
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     widget.usuario.email,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[100],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'MEMBRO PREMIUM',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 18),
+            _item(Icons.person, 'Dados da Conta'),
+            _item(Icons.lock, 'Segurança'),
+            _item(Icons.notifications, 'Notificações'),
+            _item(Icons.help, 'Ajuda'),
+            _item(Icons.headset_mic, 'Suporte'),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey[300]!,
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.card_membership,
-                        color: Colors.blue,
-                        size: 30,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Meu Plano',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Plano Anual - Expira em 12/2024',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.grey[400],
-                      size: 18,
-                    ),
-                  ],
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  onPressed: () => _showLogoutDialog(context),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Sair da Conta'),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'GERAL',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[500],
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItemGeneral(
-                    icon: Icons.person,
-                    label: 'Dados da Conta',
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItemGeneral(
-                    icon: Icons.security,
-                    label: 'Segurança e Biometria',
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItemGeneral(
-                    icon: Icons.notifications,
-                    label: 'Notificações',
-                    badge: '3',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'OUTROS',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[500],
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItemGeneral(
-                    icon: Icons.headset_mic,
-                    label: 'Suporte',
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _buildMenuItemGeneral(
-                    icon: Icons.help,
-                    label: 'FAQ',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GestureDetector(
-                onTap: () {
-                  _showLogoutDialog(context);
-                },
-                child: const Row(
-                  children: [
-                    Icon(Icons.logout, color: Colors.red, size: 24),
-                    SizedBox(width: 16),
-                    Text(
-                      'Sair da Conta',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            Text(
-              'FINANÇAS PRO VERSION 2.4.0',
-              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-            ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
-      bottomNavigationBar: widget.showBottomNavigationBar
-          ? BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              currentIndex: 3,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Início',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.list),
-                  label: 'Extrato',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.trending_up),
-                  label: 'Investir',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Perfil',
-                ),
-              ],
-            )
-          : null,
     );
   }
 
-  Widget _buildMenuItemGeneral({
-    required IconData icon,
-    required String label,
-    String? badge,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _item(IconData icon, String texto) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Container(
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[300]!,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(14),
         ),
-        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.blue[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: Colors.blue, size: 24),
-            ),
-            const SizedBox(width: 16),
+            Icon(icon, color: Colors.blue),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
+                texto,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
-            if (badge != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 8),
-            Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 18),
+            const Icon(Icons.chevron_right),
           ],
         ),
       ),
@@ -388,43 +157,28 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showDialog<void>(
+    showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sair da Conta'),
-          content: const Text('Tem certeza que deseja sair da sua conta?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+      builder: (_) => AlertDialog(
+        title: const Text('Sair da Conta'),
+        content: const Text('Deseja realmente sair?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.go('/');
+            },
+            child: const Text(
+              'Sair',
+              style: TextStyle(color: Colors.red),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Sair', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _EditAvatarButton extends StatelessWidget {
-  const _EditAvatarButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: const BoxDecoration(
-        color: Colors.blue,
-        shape: BoxShape.circle,
+          ),
+        ],
       ),
-      child: const Icon(Icons.edit, color: Colors.white, size: 24),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class TransacaoScreen extends StatefulWidget {
   const TransacaoScreen({super.key});
@@ -45,7 +46,7 @@ class _TransacaoScreenState extends State<TransacaoScreen> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
-          onPressed: () => Navigator.maybePop(context),
+          onPressed: () => context.pop(),
         ),
         title: const Text(
           'Adicionar transação',
@@ -257,7 +258,7 @@ class _TransacaoScreenState extends State<TransacaoScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => Navigator.maybePop(context),
+                onPressed: () => context.pop(),
                 icon: const Icon(Icons.close_rounded),
                 label: const Text('Cancelar'),
                 style: OutlinedButton.styleFrom(
