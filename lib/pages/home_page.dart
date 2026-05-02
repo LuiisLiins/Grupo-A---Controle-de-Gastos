@@ -4,61 +4,91 @@ import '../widgets/home/movimentacoes_card.dart';
 import '../widgets/home/grafico_card.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final largura = MediaQuery.of(context).size.width;
-    final desktop = largura > 1100;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gestão de Gastos'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Olá, Luis 👋',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final largura = constraints.maxWidth;
+
+          final isMobile = largura < 600;
+          final isTablet = largura >= 600 && largura < 1100;
+          final isDesktop = largura >= 1100;
+
+          final paddingHorizontal = isDesktop
+              ? largura * 0.15
+              : isTablet
+                  ? 32.0
+                  : 16.0;
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              paddingHorizontal,
+              20,
+              paddingHorizontal,
+              30,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Olá, Luis 👋',
+                      style: TextStyle(
+                        fontSize: isMobile ? 24 : 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    const SaldoCard(),
+
+                    const SizedBox(height: 20),
+
+                    if (isDesktop)
+                      const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: MovimentacoesCard()),
+                          SizedBox(width: 16),
+                          Expanded(child: GraficoCard()),
+                        ],
+                      )
+                    else if (isTablet)
+                      const Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: MovimentacoesCard()),
+                              SizedBox(width: 16),
+                              Expanded(child: GraficoCard()),
+                            ],
+                          ),
+                        ],
+                      )
+                    else
+                      const Column(
+                        children: [
+                          MovimentacoesCard(),
+                          SizedBox(height: 16),
+                          GraficoCard(),
+                        ],
+                      ),
+                  ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            const SaldoCard(),
-
-            const SizedBox(height: 20),
-
-            desktop
-                ? const Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: MovimentacoesCard(),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: GraficoCard(),
-                      ),
-                    ],
-                  )
-                : const Column(
-                    children: [
-                      MovimentacoesCard(),
-                      SizedBox(height: 16),
-                      GraficoCard(),
-                    ],
-                  ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
