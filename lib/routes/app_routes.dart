@@ -184,7 +184,7 @@ class AppRouter {
                 path: '/historico',
                 pageBuilder: (context, state) => CustomTransitionPage(
                   key: state.pageKey,
-                  child: const HistoricoPage(),
+                  child: HistoricoPage(),
                   transitionDuration:
                       const Duration(milliseconds: 300),
                   transitionsBuilder:
