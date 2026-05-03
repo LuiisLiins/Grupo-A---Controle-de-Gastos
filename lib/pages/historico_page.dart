@@ -32,12 +32,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
     'Saúde',
   ];
 
-  final categoriasReceita = [
-    'Salário',
-    'Freelance',
-    'Extra',
-    'Investimento',
-  ];
+  final categoriasReceita = ['Salário', 'Freelance', 'Extra', 'Investimento'];
 
   @override
   void initState() {
@@ -109,10 +104,9 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
       // Filtro por tipo
       if (selectedType != "Todos") {
-        final tipo =
-            selectedType == "Receita"
-                ? TipoTransacao.receita
-                : TipoTransacao.despesa;
+        final tipo = selectedType == "Receita"
+            ? TipoTransacao.receita
+            : TipoTransacao.despesa;
         if (transaction.tipo != tipo) {
           return false;
         }
@@ -127,9 +121,9 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
       // Filtro por pesquisa
       if (searchQuery.isNotEmpty) {
-        if (!transaction.descricao
-            .toLowerCase()
-            .contains(searchQuery.toLowerCase())) {
+        if (!transaction.descricao.toLowerCase().contains(
+          searchQuery.toLowerCase(),
+        )) {
           return false;
         }
       }
@@ -163,11 +157,13 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
     for (final transaction in filteredTransactions) {
       final now = DateTime.now();
-      final today =
-          DateTime(now.year, now.month, now.day);
+      final today = DateTime(now.year, now.month, now.day);
       final yesterday = today.subtract(const Duration(days: 1));
-      final transactionDate =
-          DateTime(transaction.data.year, transaction.data.month, transaction.data.day);
+      final transactionDate = DateTime(
+        transaction.data.year,
+        transaction.data.month,
+        transaction.data.day,
+      );
 
       late String key;
       if (transactionDate == today) {
@@ -208,10 +204,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
                 const SnackBar(content: Text('Transação excluída')),
               );
             },
-            child: const Text(
-              'Excluir',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -379,10 +372,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -405,11 +395,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(
-                top: 16,
-                bottom: 8,
-                left: 4,
-              ),
+              padding: const EdgeInsets.only(top: 16, bottom: 8, left: 4),
               child: Text(
                 dateKey,
                 style: const TextStyle(
@@ -457,24 +443,17 @@ class _HistoricoPageState extends State<HistoricoPage> {
                       leading: CircleAvatar(
                         backgroundColor: cor.withOpacity(0.1),
                         child: Icon(
-                          isReceita
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward,
+                          isReceita ? Icons.arrow_downward : Icons.arrow_upward,
                           color: cor,
                         ),
                       ),
                       title: Text(
                         transaction.descricao,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       subtitle: Text(
                         '${transaction.data.hour.toString().padLeft(2, '0')}:${transaction.data.minute.toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                       trailing: Text(
                         '${isReceita ? '+' : '-'} R\$ ${transaction.valor.toStringAsFixed(2)}',
@@ -505,17 +484,10 @@ class _HistoricoPageState extends State<HistoricoPage> {
             padding: EdgeInsets.all(16.0),
             child: Text(
               'Filtrar por Tipo',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          ...[
-            'Todos',
-            'Receita',
-            'Despesa',
-          ].map(
+          ...['Todos', 'Receita', 'Despesa'].map(
             (type) => ListTile(
               title: Text(type),
               trailing: selectedType == type
@@ -545,34 +517,28 @@ class _HistoricoPageState extends State<HistoricoPage> {
             padding: EdgeInsets.all(16.0),
             child: Text(
               'Filtrar por Categoria',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           ...[
             'Todos',
             ...categoriasDespesa,
             ...categoriasReceita,
-          ]
-              .toSet()
-              .toList()
-              .map(
-                (category) => ListTile(
-                  title: Text(category),
-                  trailing: selectedCategory == category
-                      ? const Icon(Icons.check, color: Color(0xFF0F6FE8))
-                      : null,
-                  onTap: () {
-                    setState(() {
-                      selectedCategory = category;
-                      _applyFilters();
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
+          ].toSet().toList().map(
+            (category) => ListTile(
+              title: Text(category),
+              trailing: selectedCategory == category
+                  ? const Icon(Icons.check, color: Color(0xFF0F6FE8))
+                  : null,
+              onTap: () {
+                setState(() {
+                  selectedCategory = category;
+                  _applyFilters();
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -588,10 +554,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
           children: [
             const Text(
               'Selecionar Período',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -616,9 +579,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
             ),
             ListTile(
               title: const Text('Data Final'),
-              subtitle: Text(
-                '${endDate.day}/${endDate.month}/${endDate.year}',
-              ),
+              subtitle: Text('${endDate.day}/${endDate.month}/${endDate.year}'),
               onTap: () async {
                 final picked = await showDatePicker(
                   context: context,
@@ -655,10 +616,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
             padding: EdgeInsets.all(16.0),
             child: Text(
               'Ordenar por',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           ListTile(
@@ -688,9 +646,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
             },
           ),
           ListTile(
-            title: Text(
-              sortAscending ? 'Crescente ↑' : 'Decrescente ↓',
-            ),
+            title: Text(sortAscending ? 'Crescente ↑' : 'Decrescente ↓'),
             onTap: () {
               setState(() {
                 sortAscending = !sortAscending;

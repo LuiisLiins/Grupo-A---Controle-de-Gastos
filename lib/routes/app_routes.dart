@@ -38,7 +38,6 @@ class AppRouter {
       final indoLogin = state.matchedLocation == '/login';
       final indoCadastro = state.matchedLocation == '/cadastro';
 
-
       final rotaPublica = indoLogin || indoCadastro;
 
       if (!logado && !rotaPublica) {
@@ -65,27 +64,17 @@ class AppRouter {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 70,
-                  color: Colors.grey,
-                ),
+                const Icon(Icons.error_outline, size: 70, color: Colors.grey),
                 const SizedBox(height: 20),
                 const Text(
                   'Oops!',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'A página "${state.uri}" não foi encontrada.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
                 ),
                 const SizedBox(height: 28),
                 SizedBox(
@@ -101,10 +90,7 @@ class AppRouter {
                     ),
                     child: const Text(
                       'Voltar ao início',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 ),
@@ -122,12 +108,8 @@ class AppRouter {
           key: state.pageKey,
           child: const LoginPage(),
           transitionDuration: const Duration(milliseconds: 300),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
           },
         ),
       ),
@@ -138,12 +120,8 @@ class AppRouter {
           key: state.pageKey,
           child: const CadastroPage(),
           transitionDuration: const Duration(milliseconds: 300),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
           },
         ),
       ),
@@ -164,15 +142,11 @@ class AppRouter {
                 pageBuilder: (context, state) => CustomTransitionPage(
                   key: state.pageKey,
                   child: const HomePage(),
-                  transitionDuration:
-                      const Duration(milliseconds: 300),
+                  transitionDuration: const Duration(milliseconds: 300),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                 ),
               ),
             ],
@@ -185,15 +159,11 @@ class AppRouter {
                 pageBuilder: (context, state) => CustomTransitionPage(
                   key: state.pageKey,
                   child: HistoricoPage(),
-                  transitionDuration:
-                      const Duration(milliseconds: 300),
+                  transitionDuration: const Duration(milliseconds: 300),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                 ),
               ),
             ],
@@ -206,15 +176,11 @@ class AppRouter {
                 pageBuilder: (context, state) => CustomTransitionPage(
                   key: state.pageKey,
                   child: const RelatoriosPage(),
-                  transitionDuration:
-                      const Duration(milliseconds: 300),
+                  transitionDuration: const Duration(milliseconds: 300),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                 ),
               ),
             ],
@@ -227,15 +193,11 @@ class AppRouter {
                 pageBuilder: (context, state) => CustomTransitionPage(
                   key: state.pageKey,
                   child: const PerfilPage(),
-                  transitionDuration:
-                      const Duration(milliseconds: 300),
+                  transitionDuration: const Duration(milliseconds: 300),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                 ),
               ),
             ],
@@ -249,22 +211,19 @@ class AppRouter {
           key: state.pageKey,
           child: const NovaTransacaoPage(),
           transitionDuration: const Duration(milliseconds: 400),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
-            final offset = Tween<Offset>(
-              begin: const Offset(0, 1),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              ),
-            );
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final offset =
+                Tween<Offset>(
+                  begin: const Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                );
 
-            return SlideTransition(
-              position: offset,
-              child: child,
-            );
+            return SlideTransition(position: offset, child: child);
           },
         ),
       ),
