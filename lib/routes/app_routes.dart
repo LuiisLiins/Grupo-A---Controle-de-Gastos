@@ -8,6 +8,7 @@ import '../pages/relatorios_page.dart';
 import '../pages/perfil_page.dart';
 import '../pages/nova_transacao_page.dart';
 import '../pages/login_page.dart';
+import '../pages/cadastro_page.dart';
 
 class AuthService extends ChangeNotifier {
   bool _logado = false;
@@ -35,9 +36,18 @@ class AppRouter {
     redirect: (context, state) {
       final logado = authService.logado;
       final indoLogin = state.matchedLocation == '/login';
+      final indoCadastro = state.matchedLocation == '/cadastro';
 
-      if (!logado && !indoLogin) return '/login';
-      if (logado && indoLogin) return '/';
+
+      final rotaPublica = indoLogin || indoCadastro;
+
+      if (!logado && !rotaPublica) {
+        return '/login';
+      }
+
+      if (logado && rotaPublica) {
+        return '/';
+      }
 
       return null;
     },
@@ -111,6 +121,22 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const LoginPage(),
+          transitionDuration: const Duration(milliseconds: 300),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      GoRoute(
+        path: '/cadastro',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const CadastroPage(),
           transitionDuration: const Duration(milliseconds: 300),
           transitionsBuilder:
               (context, animation, secondaryAnimation, child) {

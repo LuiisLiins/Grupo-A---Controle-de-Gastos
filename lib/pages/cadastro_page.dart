@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import '../routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
+import '../widgets/auth/cadastro_textfield.dart';
+import '../widgets/auth/cadastro_button.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class CadastroPage extends StatelessWidget {
+  const CadastroPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final nomeController = TextEditingController();
     final emailController = TextEditingController();
     final senhaController = TextEditingController();
+    final confirmarSenhaController = TextEditingController();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F7),
@@ -35,7 +38,7 @@ class LoginPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
-                    Icons.account_balance_wallet_rounded,
+                    Icons.person_add_alt_rounded,
                     size: 62,
                     color: Color(0xFF007AFF),
                   ),
@@ -43,7 +46,7 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 18),
 
                   const Text(
-                    'Bem-vindo',
+                    'Criar Conta',
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w700,
@@ -54,7 +57,7 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   const Text(
-                    'Entre para continuar',
+                    'Cadastre-se para continuar',
                     style: TextStyle(
                       fontSize: 16,
                       color: Color(0xFF8E8E93),
@@ -70,31 +73,36 @@ class LoginPage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        TextField(
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                            hintText: 'E-mail',
-                            prefixIcon: Icon(Icons.mail_outline),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
-                            ),
-                          ),
+                        CadastroTextField(
+                          controller: nomeController,
+                          hint: 'Nome completo',
+                          icon: Icons.person_outline,
                         ),
 
                         const Divider(height: 1),
 
-                        TextField(
+                        CadastroTextField(
+                          controller: emailController,
+                          hint: 'E-mail',
+                          icon: Icons.mail_outline,
+                        ),
+
+                        const Divider(height: 1),
+
+                        CadastroTextField(
                           controller: senhaController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: 'Senha',
-                            prefixIcon: Icon(Icons.lock_outline),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
-                            ),
-                          ),
+                          hint: 'Senha',
+                          icon: Icons.lock_outline,
+                          obscure: true,
+                        ),
+
+                        const Divider(height: 1),
+
+                        CadastroTextField(
+                          controller: confirmarSenhaController,
+                          hint: 'Confirmar senha',
+                          icon: Icons.lock_outline,
+                          obscure: true,
                         ),
                       ],
                     ),
@@ -105,38 +113,19 @@ class LoginPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     height: 54,
-                    child: ElevatedButton(
+                    child: CadastroButton(
+                      texto: 'Cadastrar',
                       onPressed: () {
-                        authService.login();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Cadastro realizado com sucesso!',
+                            ),
+                          ),
+                        );
+
+                        context.go('/login');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF007AFF),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Entrar',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      'Esqueci minha senha',
-                      style: TextStyle(
-                        color: Color(0xFF007AFF),
-                        fontSize: 15,
-                      ),
                     ),
                   ),
 
@@ -146,7 +135,7 @@ class LoginPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Não tem conta? ',
+                        'Já possui conta? ',
                         style: TextStyle(
                           color: Color(0xFF8E8E93),
                           fontSize: 15,
@@ -154,10 +143,10 @@ class LoginPage extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          context.go('/cadastro');
+                          context.go('/login');
                         },
                         child: const Text(
-                          'Cadastre-se',
+                          'Entrar',
                           style: TextStyle(
                             color: Color(0xFF007AFF),
                             fontSize: 15,
