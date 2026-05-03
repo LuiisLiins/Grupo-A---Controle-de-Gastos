@@ -5,6 +5,7 @@ class CadastroTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool obscure;
+  final String? Function(String?)? validator;
 
   const CadastroTextField({
     super.key,
@@ -12,27 +13,23 @@ class CadastroTextField extends StatelessWidget {
     required this.hint,
     required this.icon,
     this.obscure = false,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       obscureText: obscure,
+      validator: validator,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.black45),
-        filled: true,
-        fillColor: Colors.white,
+        prefixIcon: Icon(icon),
+        border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(
           vertical: 18,
-          horizontal: 16,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
         ),
       ),
     );
   }
-} 
+}
