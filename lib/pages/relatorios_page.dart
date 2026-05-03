@@ -208,17 +208,14 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
     final totalIncome = _getTotalIncome();
     final avgDaily = _getAverageDailyExpense();
 
-    // Insight 1: Comparação com período anterior
     final balance = totalIncome - totalExpense;
     if (balance > 0) {
       final percentage = ((balance / totalIncome) * 100).toStringAsFixed(0);
       insights.add('Economia acumulada: R\$ ${balance.toStringAsFixed(2)}');
     }
 
-    // Insight 2: Gasto diário
     insights.add('Gasto médio diário: R\$ ${avgDaily.toStringAsFixed(2)}');
 
-    // Insight 3: Proporção receita vs despesa
     final despesaPercentage = totalIncome > 0
         ? ((totalExpense / totalIncome) * 100).toStringAsFixed(0)
         : '0';
@@ -226,7 +223,6 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
       insights.add('Alerta! Você gastou ${despesaPercentage}% da sua renda');
     }
 
-    // Insight 4: Categoria mais cara
     insights.add('Categoria com mais gastos: ${_getMostExpensiveCategory()}');
 
     return insights;
@@ -252,27 +248,21 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Seletor de período
             _buildPeriodSelector(),
             const SizedBox(height: 24),
 
-            // Cards de resumo
             _buildSummaryCards(),
             const SizedBox(height: 24),
 
-            // Insights automáticos
             _buildInsightsSection(),
             const SizedBox(height: 24),
 
-            // Gráfico de pizza por categoria
             _buildCategoryPieChart(),
             const SizedBox(height: 24),
 
-            // Comparativo Receita x Despesa
             _buildIncomeVsExpenseChart(),
             const SizedBox(height: 24),
 
-            // Gráfico de barras mensal
             _buildMonthlyBarChart(),
             const SizedBox(height: 24),
           ],

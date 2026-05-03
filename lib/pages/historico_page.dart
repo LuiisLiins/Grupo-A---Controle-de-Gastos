@@ -11,7 +11,6 @@ class HistoricoPage extends StatefulWidget {
 }
 
 class _HistoricoPageState extends State<HistoricoPage> {
-  // Lista mockada de transações para exemplo
   late List<Gasto> transactions;
   late List<Gasto> filteredTransactions;
 
@@ -21,7 +20,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
   String selectedCategory = "Todos";
   late DateTime startDate;
   late DateTime endDate;
-  String sortBy = "data"; // "data" ou "valor"
+  String sortBy = "data";
   bool sortAscending = false;
 
   final categoriasDespesa = [
@@ -44,7 +43,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
   }
 
   void _initializeTransactions() {
-    // Dados mockados para exemplo
     transactions = [
       Gasto(
         id: 1,
@@ -96,13 +94,11 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
   void _applyFilters() {
     filteredTransactions = transactions.where((transaction) {
-      // Filtro por data
       if (transaction.data.isBefore(startDate) ||
           transaction.data.isAfter(endDate.add(const Duration(days: 1)))) {
         return false;
       }
 
-      // Filtro por tipo
       if (selectedType != "Todos") {
         final tipo = selectedType == "Receita"
             ? TipoTransacao.receita
@@ -112,14 +108,12 @@ class _HistoricoPageState extends State<HistoricoPage> {
         }
       }
 
-      // Filtro por categoria
       if (selectedCategory != "Todos") {
         if (transaction.categoriaId != _getCategoryId(selectedCategory)) {
           return false;
         }
       }
 
-      // Filtro por pesquisa
       if (searchQuery.isNotEmpty) {
         if (!transaction.descricao.toLowerCase().contains(
           searchQuery.toLowerCase(),
@@ -130,8 +124,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
       return true;
     }).toList();
-
-    // Aplicar ordenação
     if (sortBy == "data") {
       filteredTransactions.sort((a, b) {
         final compare = b.data.compareTo(a.data);
@@ -242,7 +234,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Implementar edição
             },
             child: const Text('Editar'),
           ),
@@ -265,7 +256,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
       ),
       body: Column(
         children: [
-          // Barra de pesquisa
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -285,34 +275,29 @@ class _HistoricoPageState extends State<HistoricoPage> {
               },
             ),
           ),
-          // Filtros
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                // Filtro por tipo
                 _buildFilterChip(
                   label: selectedType,
                   onTap: () => _showTypeFilter(),
                   icon: Icons.filter_list,
                 ),
                 const SizedBox(width: 8),
-                // Filtro por categoria
                 _buildFilterChip(
                   label: selectedCategory,
                   onTap: () => _showCategoryFilter(),
                   icon: Icons.category,
                 ),
                 const SizedBox(width: 8),
-                // Filtro por período
                 _buildFilterChip(
                   label: 'Período',
                   onTap: () => _showDateRangeFilter(),
                   icon: Icons.calendar_today,
                 ),
                 const SizedBox(width: 8),
-                // Ordenação
                 _buildFilterChip(
                   label: sortBy == "data" ? "Data ↓" : "Valor ↓",
                   onTap: () => _showSortFilter(),
@@ -322,7 +307,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
             ),
           ),
           const SizedBox(height: 12),
-          // Lista de transações
           Expanded(
             child: filteredTransactions.isEmpty
                 ? Center(
@@ -416,9 +400,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
                   motion: const ScrollMotion(),
                   children: [
                     SlidableAction(
-                      onPressed: (context) {
-                        // TODO: Implementar edição
-                      },
+                      onPressed: (context) {},
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                       icon: Icons.edit,
