@@ -244,7 +244,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),

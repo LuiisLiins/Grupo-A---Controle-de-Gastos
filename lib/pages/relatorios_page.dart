@@ -210,7 +210,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
 
     final balance = totalIncome - totalExpense;
     if (balance > 0) {
-      final percentage = ((balance / totalIncome) * 100).toStringAsFixed(0);
+      ((balance / totalIncome) * 100).toStringAsFixed(0);
       insights.add('Economia acumulada: R\$ ${balance.toStringAsFixed(2)}');
     }
 
@@ -230,10 +230,6 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
-    final isTablet =
-        MediaQuery.of(context).size.width >= 600 &&
-        MediaQuery.of(context).size.width < 1100;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
