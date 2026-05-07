@@ -62,6 +62,7 @@ class TipoSelector extends StatelessWidget {
             boxShadow: ativo
                 ? [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: cor.withOpacity(0.22),
                       blurRadius: 10,
                       offset: const Offset(0, 4),

@@ -422,6 +422,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: CircleAvatar(
+                        // ignore: deprecated_member_use
                         backgroundColor: cor.withOpacity(0.1),
                         child: Icon(
                           isReceita ? Icons.arrow_downward : Icons.arrow_upward,
@@ -448,7 +449,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         );
       },
@@ -501,11 +502,11 @@ class _HistoricoPageState extends State<HistoricoPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          ...[
+          ...{
             'Todos',
             ...categoriasDespesa,
             ...categoriasReceita,
-          ].toSet().toList().map(
+          }.toList().map(
             (category) => ListTile(
               title: Text(category),
               trailing: selectedCategory == category

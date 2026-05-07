@@ -33,13 +33,16 @@ class _CadastroPageState extends State<CadastroPage> {
 
     if (!valido) return;
 
+    final nome = nomeController.text;
+    final email = emailController.text;
+    final senha = senhaController.text;
+    final confirmarSenha = confirmarSenhaController.text;
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Cadastro realizado com sucesso!'),
       ),
     );
-
-    context.go('/login');
   }
 
   @override
@@ -58,6 +61,7 @@ class _CadastroPageState extends State<CadastroPage> {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
+                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.06),
                     blurRadius: 24,
                     offset: const Offset(0, 10),

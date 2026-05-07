@@ -106,6 +106,7 @@ class _NovaTransacaoPageState extends State<NovaTransacaoPage> {
                         BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.black.withOpacity(
                           0.04,
                         ),

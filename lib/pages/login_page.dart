@@ -1,15 +1,49 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final senhaController = TextEditingController();
+  State<LoginPage> createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+
+@override
+  void dispose() {
+    emailController.dispose();
+    senhaController.dispose();
+    super.dispose();
+  }
+
+void login () {
+    final valido = _formKey.currentState!.validate();
+
+    if (!valido) return;
+
+    // ignore: unused_local_variable
+    final email = emailController.text;
+    // ignore: unused_local_variable
+    final senha = senhaController.text;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Login realizado com sucesso!'),
+      ),
+    );
+
+    context.go('/home');
+}
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F7),
       body: SafeArea(
@@ -24,13 +58,13 @@ class LoginPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    // ignore: deprecated_member_use
+                    color: Colors.black.withOpacity(0.06),
                     blurRadius: 24,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -39,7 +73,6 @@ class LoginPage extends StatelessWidget {
                     size: 62,
                     color: Color(0xFF007AFF),
                   ),
-
                   const SizedBox(height: 18),
 
                   const Text(
@@ -47,7 +80,6 @@ class LoginPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
                     ),
                   ),
 
@@ -76,14 +108,10 @@ class LoginPage extends StatelessWidget {
                             hintText: 'E-mail',
                             prefixIcon: Icon(Icons.mail_outline),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
-                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 18),
                           ),
                         ),
-
                         const Divider(height: 1),
-
                         TextField(
                           controller: senhaController,
                           obscureText: true,
@@ -91,9 +119,7 @@ class LoginPage extends StatelessWidget {
                             hintText: 'Senha',
                             prefixIcon: Icon(Icons.lock_outline),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 18,
-                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 18),
                           ),
                         ),
                       ],
@@ -107,7 +133,19 @@ class LoginPage extends StatelessWidget {
                     height: 54,
                     child: ElevatedButton(
                       onPressed: () {
-                        authService.login();
+                        // Aqui você pode validar antes
+                        final email = emailController.text;
+                        final senha = senhaController.text;
+
+                        if (kDebugMode) {
+                          print(email);
+                        }
+                        if (kDebugMode) {
+                          print(senha);
+                        }
+
+                        // Exemplo de navegação
+                        authService.login;
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF007AFF),

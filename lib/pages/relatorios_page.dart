@@ -185,7 +185,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
     if (filtered.isEmpty) return 0;
 
     final total = _getTotalExpenses();
-    final days = filtered.length > 0
+    final days = filtered.isNotEmpty
         ? endDate.difference(startDate).inDays + 1
         : 1;
 
@@ -220,7 +220,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
         ? ((totalExpense / totalIncome) * 100).toStringAsFixed(0)
         : '0';
     if (int.parse(despesaPercentage) > 80) {
-      insights.add('Alerta! Você gastou ${despesaPercentage}% da sua renda');
+      insights.add('Alerta! Você gastou $despesaPercentage% da sua renda');
     }
 
     insights.add('Categoria com mais gastos: ${_getMostExpensiveCategory()}');
@@ -466,8 +466,10 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.blue.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
+                // ignore: deprecated_member_use
                 border: Border.all(color: Colors.blue.withOpacity(0.3)),
               ),
               child: Row(
@@ -491,7 +493,7 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
