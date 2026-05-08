@@ -5,7 +5,12 @@ class CadastroTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool obscure;
+
   final String? Function(String?)? validator;
+
+  final TextInputAction? textInputAction;
+  final void Function(String)? onFieldSubmitted;
+  final FocusNode? focusNode;
 
   const CadastroTextField({
     super.key,
@@ -14,6 +19,9 @@ class CadastroTextField extends StatelessWidget {
     required this.icon,
     this.obscure = false,
     this.validator,
+    this.textInputAction,
+    this.onFieldSubmitted,
+    this.focusNode,
   });
 
   @override
@@ -22,6 +30,11 @@ class CadastroTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscure,
       validator: validator,
+
+      textInputAction: textInputAction,
+      onFieldSubmitted: onFieldSubmitted,
+      focusNode: focusNode,
+
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon),

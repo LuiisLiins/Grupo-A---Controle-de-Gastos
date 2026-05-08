@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../utils/validadores.dart';
 import '../widgets/auth/cadastro_button.dart';
 import '../widgets/auth/cadastro_textfield.dart';
 
@@ -19,30 +20,48 @@ class _CadastroPageState extends State<CadastroPage> {
   final senhaController = TextEditingController();
   final confirmarSenhaController = TextEditingController();
 
+  final _emailFocus = FocusNode();
+  final _senhaFocus = FocusNode();
+  final _confirmarSenhaFocus = FocusNode();
+
   @override
   void dispose() {
     nomeController.dispose();
     emailController.dispose();
     senhaController.dispose();
     confirmarSenhaController.dispose();
+
+    _emailFocus.dispose();
+    _senhaFocus.dispose();
+    _confirmarSenhaFocus.dispose();
+
     super.dispose();
   }
 
   void cadastrar() {
-    final valido = _formKey.currentState!.validate();
+    final formularioValido = _formKey.currentState!.validate();
 
-    if (!valido) return;
+    if (!formularioValido) {
+      return;
+    }
 
-    final nome = nomeController.text;
-    final email = emailController.text;
+    final nome = nomeController.text.trim();
+    final email = emailController.text.trim();
     final senha = senhaController.text;
-    final confirmarSenha = confirmarSenhaController.text;
+
+    debugPrint(nome);
+    debugPrint(email);
+    debugPrint(senha);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Cadastro realizado com sucesso!'),
+      SnackBar(
+        content: Text(
+          'Cadastro de $nome realizado com sucesso!',
+        ),
       ),
     );
+
+    context.go('/login');
   }
 
   @override
@@ -61,14 +80,12 @@ class _CadastroPageState extends State<CadastroPage> {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.06),
                     blurRadius: 24,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -114,16 +131,12 @@ class _CadastroPageState extends State<CadastroPage> {
                             controller: nomeController,
                             hint: 'Nome completo',
                             icon: Icons.person_outline,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Informe seu nome';
-                              }
-
-                              if (value.trim().length < 3) {
-                                return 'Nome muito curto';
-                              }
-
-                              return null;
+                            validator: Validadores.nomeCompleto,
+                            textInputAction: TextInputAction.next,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(_emailFocus);
                             },
                           ),
 
@@ -131,21 +144,15 @@ class _CadastroPageState extends State<CadastroPage> {
 
                           CadastroTextField(
                             controller: emailController,
+                            focusNode: _emailFocus,
                             hint: 'E-mail',
                             icon: Icons.mail_outline,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Informe seu e-mail';
-                              }
-
-                              final emailRegex =
-                                  RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-
-                              if (!emailRegex.hasMatch(value.trim())) {
-                                return 'E-mail inválido';
-                              }
-
-                              return null;
+                            validator: Validadores.email,
+                            textInputAction: TextInputAction.next,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(_senhaFocus);
                             },
                           ),
 
@@ -153,19 +160,18 @@ class _CadastroPageState extends State<CadastroPage> {
 
                           CadastroTextField(
                             controller: senhaController,
+                            focusNode: _senhaFocus,
                             hint: 'Senha',
                             icon: Icons.lock_outline,
                             obscure: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Informe a senha';
-                              }
-
-                              if (value.length < 6) {
-                                return 'Mínimo 6 caracteres';
-                              }
-
-                              return null;
+                            validator: Validadores.senha,
+                            textInputAction: TextInputAction.next,
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(
+                                _confirmarSenhaFocus,
+                              );
                             },
                           ),
 
@@ -173,19 +179,16 @@ class _CadastroPageState extends State<CadastroPage> {
 
                           CadastroTextField(
                             controller: confirmarSenhaController,
+                            focusNode: _confirmarSenhaFocus,
                             hint: 'Confirmar senha',
                             icon: Icons.lock_outline,
                             obscure: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Confirme sua senha';
-                              }
-
-                              if (value != senhaController.text) {
-                                return 'As senhas não coincidem';
-                              }
-
-                              return null;
+                            validator: Validadores.confirmarSenha(
+                              senhaController.text,
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) {
+                              cadastrar();
                             },
                           ),
                         ],
@@ -215,6 +218,7 @@ class _CadastroPageState extends State<CadastroPage> {
                             fontSize: 15,
                           ),
                         ),
+
                         TextButton(
                           onPressed: () {
                             context.go('/login');
