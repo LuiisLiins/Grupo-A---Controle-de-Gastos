@@ -1,49 +1,34 @@
 import 'package:flutter/material.dart';
-import '../routes/app_routes.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/config_provider.dart';
 
-class PerfilPage extends StatefulWidget {
+class PerfilPage extends StatelessWidget {
   const PerfilPage({super.key});
 
   @override
-  State<PerfilPage> createState() => _PerfilPageState();
-}
-
-class _PerfilPageState extends State<PerfilPage> {
-  bool isDark = false;
-  bool pin = true;
-  bool biometria = true;
-
-  void _logout() {
-    authService.logout();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final bg = isDark ? const Color(0xFF121212) : const Color(0xFFF5F7FB);
-    final text = isDark ? Colors.white : Colors.black;
+    // Escuta as mudanças nas configurações e nos dados do usuário
+    final config = context.watch<ConfigProvider>();
+    final auth = context.watch<AuthProvider>();
+
+    final isDark = config.isDark;
+    final theme = Theme.of(context);
+    final textStyle = TextStyle(color: isDark ? Colors.white : Colors.black);
 
     return Scaffold(
-      backgroundColor: bg,
       appBar: AppBar(
         title: const Text('Perfil'),
         centerTitle: true,
-        backgroundColor: bg,
         elevation: 0,
-        foregroundColor: text,
       ),
-
-    
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
-
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-
             child: Column(
               children: [
-
-               
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.blue.shade100,
@@ -54,35 +39,28 @@ class _PerfilPageState extends State<PerfilPage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
                 Text(
-                  'Luis Lins',
-                  style: TextStyle(
+                  auth.usuario?.nome ?? 'Usuário',
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: text,
                   ),
                 ),
-
-                const Text('luis@email.com'),
-
+                Text(auth.usuario?.email ?? 'email@exemplo.com'),
                 const SizedBox(height: 10),
-
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text('MEMBRO PREMIUM'),
+                  child: const Text(
+                    'MEMBRO PREMIUM',
+                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
                 ),
-
                 const SizedBox(height: 20),
-
-               
                 Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -94,12 +72,8 @@ class _PerfilPageState extends State<PerfilPage> {
                     trailing: Icon(Icons.edit),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-             
                 _title('CONFIGURAÇÕES'),
-
                 Card(
                   child: Column(
                     children: [
@@ -108,29 +82,25 @@ class _PerfilPageState extends State<PerfilPage> {
                         title: Text('Alterar senha'),
                       ),
                       SwitchListTile(
-                        value: pin,
-                        onChanged: (v) => setState(() => pin = v),
+                        value: config.pinAtivo,
+                        onChanged: (v) => config.togglePin(v),
                         title: const Text('Segurança por PIN'),
                       ),
                       SwitchListTile(
-                        value: biometria,
-                        onChanged: (v) => setState(() => biometria = v),
+                        value: config.biometriaAtiva,
+                        onChanged: (v) => config.toggleBiometria(v),
                         title: const Text('Biometria'),
                       ),
                       SwitchListTile(
-                        value: isDark,
-                        onChanged: (v) => setState(() => isDark = v),
+                        value: config.isDark,
+                        onChanged: (v) => config.toggleTema(),
                         title: const Text('Tema escuro'),
                       ),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-              
                 _title('PREFERÊNCIAS'),
-
                 Card(
                   child: Column(
                     children: const [
@@ -155,12 +125,8 @@ class _PerfilPageState extends State<PerfilPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-              
                 _title('ESTATÍSTICAS'),
-
                 Card(
                   child: Column(
                     children: const [
@@ -179,21 +145,16 @@ class _PerfilPageState extends State<PerfilPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-           
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
                   title: const Text(
                     'Sair da conta',
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                   ),
-                  onTap: _logout,
+                  onTap: () => auth.logout(),
                 ),
-
                 const SizedBox(height: 20),
-
                 const Text(
                   'VERSÃO 2.0.0',
                   style: TextStyle(color: Colors.grey),

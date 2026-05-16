@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../utils/validadores.dart';
 import '../widgets/auth/cadastro_button.dart';
 import '../widgets/auth/cadastro_textfield.dart';
@@ -30,38 +30,43 @@ class _CadastroPageState extends State<CadastroPage> {
     emailController.dispose();
     senhaController.dispose();
     confirmarSenhaController.dispose();
-
     _emailFocus.dispose();
     _senhaFocus.dispose();
     _confirmarSenhaFocus.dispose();
-
     super.dispose();
   }
 
-  void cadastrar() {
+  Future<void> cadastrar() async {
     final formularioValido = _formKey.currentState!.validate();
 
     if (!formularioValido) {
       return;
     }
 
-    final nome = nomeController.text.trim();
-    final email = emailController.text.trim();
-    final senha = senhaController.text;
+    try {
+      await context.read<AuthProvider>().login(
+        emailController.text.trim(),
+        senhaController.text,
+      );
 
-    debugPrint(nome);
-    debugPrint(email);
-    debugPrint(senha);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Cadastro de $nome realizado com sucesso!',
-        ),
-      ),
-    );
-
-    context.go('/login');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cadastro de ${nomeController.text} realizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao realizar cadastro.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -96,9 +101,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       size: 62,
                       color: Color(0xFF007AFF),
                     ),
-
                     const SizedBox(height: 18),
-
                     const Text(
                       'Criar Conta',
                       style: TextStyle(
@@ -107,9 +110,7 @@ class _CadastroPageState extends State<CadastroPage> {
                         letterSpacing: -0.5,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     const Text(
                       'Cadastre-se para continuar',
                       style: TextStyle(
@@ -117,9 +118,7 @@ class _CadastroPageState extends State<CadastroPage> {
                         color: Color(0xFF8E8E93),
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
                     Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFF2F2F7),
@@ -134,14 +133,10 @@ class _CadastroPageState extends State<CadastroPage> {
                             validator: Validadores.nomeCompleto,
                             textInputAction: TextInputAction.next,
                             onFieldSubmitted: (_) {
-                              FocusScope.of(
-                                context,
-                              ).requestFocus(_emailFocus);
+                              FocusScope.of(context).requestFocus(_emailFocus);
                             },
                           ),
-
                           const Divider(height: 1),
-
                           CadastroTextField(
                             controller: emailController,
                             focusNode: _emailFocus,
@@ -150,14 +145,10 @@ class _CadastroPageState extends State<CadastroPage> {
                             validator: Validadores.email,
                             textInputAction: TextInputAction.next,
                             onFieldSubmitted: (_) {
-                              FocusScope.of(
-                                context,
-                              ).requestFocus(_senhaFocus);
+                              FocusScope.of(context).requestFocus(_senhaFocus);
                             },
                           ),
-
                           const Divider(height: 1),
-
                           CadastroTextField(
                             controller: senhaController,
                             focusNode: _senhaFocus,
@@ -167,36 +158,24 @@ class _CadastroPageState extends State<CadastroPage> {
                             validator: Validadores.senha,
                             textInputAction: TextInputAction.next,
                             onFieldSubmitted: (_) {
-                              FocusScope.of(
-                                context,
-                              ).requestFocus(
-                                _confirmarSenhaFocus,
-                              );
+                              FocusScope.of(context).requestFocus(_confirmarSenhaFocus);
                             },
                           ),
-
                           const Divider(height: 1),
-
                           CadastroTextField(
                             controller: confirmarSenhaController,
                             focusNode: _confirmarSenhaFocus,
                             hint: 'Confirmar senha',
                             icon: Icons.lock_outline,
                             obscure: true,
-                            validator: Validadores.confirmarSenha(
-                              senhaController.text,
-                            ),
+                            validator: Validadores.confirmarSenha(senhaController.text),
                             textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) {
-                              cadastrar();
-                            },
+                            onFieldSubmitted: (_) => cadastrar(),
                           ),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -204,35 +183,6 @@ class _CadastroPageState extends State<CadastroPage> {
                         texto: 'Cadastrar',
                         onPressed: cadastrar,
                       ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Já possui conta? ',
-                          style: TextStyle(
-                            color: Color(0xFF8E8E93),
-                            fontSize: 15,
-                          ),
-                        ),
-
-                        TextButton(
-                          onPressed: () {
-                            context.go('/login');
-                          },
-                          child: const Text(
-                            'Entrar',
-                            style: TextStyle(
-                              color: Color(0xFF007AFF),
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),

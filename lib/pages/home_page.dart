@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/home/saldo_card.dart';
 import '../widgets/home/movimentacoes_card.dart';
 import '../widgets/home/grafico_card.dart';
@@ -8,6 +10,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gestão de Gastos'),
@@ -16,7 +20,6 @@ class HomePage extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final largura = constraints.maxWidth;
-
           final isMobile = largura < 600;
           final isTablet = largura >= 600 && largura < 1100;
           final isDesktop = largura >= 1100;
@@ -41,19 +44,15 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Olá, Luis 👋',
+                      'Olá, ${auth.usuario?.nome.split(' ').first ?? 'Usuário'} 👋',
                       style: TextStyle(
                         fontSize: isMobile ? 24 : 30,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     const SaldoCard(),
-
                     const SizedBox(height: 20),
-
                     if (isDesktop)
                       const Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

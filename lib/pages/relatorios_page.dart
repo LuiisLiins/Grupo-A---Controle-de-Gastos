@@ -1,242 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
+import '../providers/transacao_provider.dart';
 import '../models/gasto.dart';
 import '../models/enums.dart';
 
-class RelatoriosPage extends StatefulWidget {
+class RelatoriosPage extends StatelessWidget {
   const RelatoriosPage({super.key});
 
   @override
-  State<RelatoriosPage> createState() => _RelatoriosPageState();
-}
-
-class _RelatoriosPageState extends State<RelatoriosPage> {
-  late List<Gasto> transactions;
-  late DateTime startDate;
-  late DateTime endDate;
-
-  final categoriasDespesa = [
-    'Alimentação',
-    'Transporte',
-    'Moradia',
-    'Lazer',
-    'Saúde',
-  ];
-
-  final categoriasReceita = ['Salário', 'Freelance', 'Extra', 'Investimento'];
-
-  @override
-  void initState() {
-    super.initState();
-    startDate = DateTime.now().subtract(const Duration(days: 90));
-    endDate = DateTime.now();
-    _initializeTransactions();
-  }
-
-  void _initializeTransactions() {
-    transactions = [
-      Gasto(
-        id: 1,
-        descricao: 'Mercado',
-        valor: 80.00,
-        data: DateTime.now(),
-        categoriaId: 1,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 2,
-        descricao: 'Uber',
-        valor: 22.00,
-        data: DateTime.now(),
-        categoriaId: 2,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 3,
-        descricao: 'Aluguel',
-        valor: 1200.00,
-        data: DateTime.now().subtract(const Duration(days: 1)),
-        categoriaId: 3,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 4,
-        descricao: 'Salário',
-        valor: 4500.00,
-        data: DateTime.now().subtract(const Duration(days: 1)),
-        categoriaId: 1,
-        usuarioId: 1,
-        tipo: TipoTransacao.receita,
-      ),
-      Gasto(
-        id: 5,
-        descricao: 'Cinema',
-        valor: 50.00,
-        data: DateTime.now().subtract(const Duration(days: 2)),
-        categoriaId: 4,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 6,
-        descricao: 'Farmácia',
-        valor: 120.00,
-        data: DateTime.now().subtract(const Duration(days: 5)),
-        categoriaId: 5,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 7,
-        descricao: 'Freelance',
-        valor: 250.00,
-        data: DateTime.now().subtract(const Duration(days: 3)),
-        categoriaId: 2,
-        usuarioId: 1,
-        tipo: TipoTransacao.receita,
-      ),
-      Gasto(
-        id: 8,
-        descricao: 'Restaurante',
-        valor: 85.00,
-        data: DateTime.now().subtract(const Duration(days: 7)),
-        categoriaId: 1,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 9,
-        descricao: 'Uber',
-        valor: 18.00,
-        data: DateTime.now().subtract(const Duration(days: 10)),
-        categoriaId: 2,
-        usuarioId: 1,
-        tipo: TipoTransacao.despesa,
-      ),
-      Gasto(
-        id: 10,
-        descricao: 'Salário',
-        valor: 4500.00,
-        data: DateTime.now().subtract(const Duration(days: 30)),
-        categoriaId: 1,
-        usuarioId: 1,
-        tipo: TipoTransacao.receita,
-      ),
-    ];
-  }
-
-  List<Gasto> _getFilteredTransactions() {
-    return transactions.where((t) {
-      return !t.data.isBefore(startDate) &&
-          !t.data.isAfter(endDate.add(const Duration(days: 1)));
-    }).toList();
-  }
-
-  Map<String, double> _getCategoryExpenses() {
-    final filtered = _getFilteredTransactions();
-    final expenses = <String, double>{};
-
-    for (final gasto in filtered) {
-      if (gasto.tipo == TipoTransacao.despesa) {
-        final categoryName = _getCategoryName(gasto.categoriaId);
-        expenses[categoryName] = (expenses[categoryName] ?? 0) + gasto.valor;
-      }
-    }
-
-    return expenses;
-  }
-
-  String _getCategoryName(int categoryId) {
-    if (categoryId <= categoriasDespesa.length) {
-      return categoriasDespesa[categoryId - 1];
-    }
-    return categoriasReceita[categoryId - 1];
-  }
-
-  Map<int, double> _getMonthlyExpenses() {
-    final filtered = _getFilteredTransactions();
-    final monthly = <int, double>{};
-
-    for (final gasto in filtered) {
-      final monthKey = gasto.data.month;
-      monthly[monthKey] = (monthly[monthKey] ?? 0) + gasto.valor;
-    }
-
-    return monthly;
-  }
-
-  double _getTotalExpenses() {
-    return _getFilteredTransactions()
-        .where((t) => t.tipo == TipoTransacao.despesa)
-        .fold(0, (sum, t) => sum + t.valor);
-  }
-
-  double _getTotalIncome() {
-    return _getFilteredTransactions()
-        .where((t) => t.tipo == TipoTransacao.receita)
-        .fold(0, (sum, t) => sum + t.valor);
-  }
-
-  double _getAverageDailyExpense() {
-    final filtered = _getFilteredTransactions();
-    if (filtered.isEmpty) return 0;
-
-    final total = _getTotalExpenses();
-    final days = filtered.isNotEmpty
-        ? endDate.difference(startDate).inDays + 1
-        : 1;
-
-    return total / days;
-  }
-
-  String _getMostExpensiveCategory() {
-    final expenses = _getCategoryExpenses();
-    if (expenses.isEmpty) return 'N/A';
-
-    final topCategory = expenses.entries.reduce(
-      (a, b) => a.value > b.value ? a : b,
-    );
-    return topCategory.key;
-  }
-
-  List<String> _generateInsights() {
-    final insights = <String>[];
-    final totalExpense = _getTotalExpenses();
-    final totalIncome = _getTotalIncome();
-    final avgDaily = _getAverageDailyExpense();
-
-    final balance = totalIncome - totalExpense;
-    if (balance > 0) {
-      ((balance / totalIncome) * 100).toStringAsFixed(0);
-      insights.add('Economia acumulada: R\$ ${balance.toStringAsFixed(2)}');
-    }
-
-    insights.add('Gasto médio diário: R\$ ${avgDaily.toStringAsFixed(2)}');
-
-    final despesaPercentage = totalIncome > 0
-        ? ((totalExpense / totalIncome) * 100).toStringAsFixed(0)
-        : '0';
-    if (int.parse(despesaPercentage) > 80) {
-      insights.add('Alerta! Você gastou $despesaPercentage% da sua renda');
-    }
-
-    insights.add('Categoria com mais gastos: ${_getMostExpensiveCategory()}');
-
-    return insights;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final prov = context.watch<TransacaoProvider>();
+    final filtradas = prov.filtradas;
+
+    final totalReceita = filtradas
+        .where((t) => t.tipo == TipoTransacao.receita)
+        .fold(0.0, (sum, t) => sum + t.valor);
+
+    final totalDespesa = filtradas
+        .where((t) => t.tipo == TipoTransacao.despesa)
+        .fold(0.0, (sum, t) => sum + t.valor);
+
+    final saldo = totalReceita - totalDespesa;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text('Relatórios'),
         centerTitle: true,
-        backgroundColor: const Color(0xFFF5F7FB),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -244,544 +35,208 @@ class _RelatoriosPageState extends State<RelatoriosPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPeriodSelector(),
+            _buildPeriodSelector(context, prov),
             const SizedBox(height: 24),
-
-            _buildSummaryCards(),
+            _buildSummaryCards(totalReceita, totalDespesa, saldo),
             const SizedBox(height: 24),
-
-            _buildInsightsSection(),
+            _buildInsightsSection(totalReceita, totalDespesa),
             const SizedBox(height: 24),
-
-            _buildCategoryPieChart(),
+            _buildCategoryPieChart(filtradas),
             const SizedBox(height: 24),
-
-            _buildIncomeVsExpenseChart(),
-            const SizedBox(height: 24),
-
-            _buildMonthlyBarChart(),
-            const SizedBox(height: 24),
+            _buildIncomeVsExpenseChart(totalReceita, totalDespesa),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPeriodSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildPeriodSelector(BuildContext context, TransacaoProvider prov) {
+    return Row(
       children: [
-        const Text(
-          'Período',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        Expanded(
+          child: _DateTile(
+            label: 'Início',
+            date: prov.dataInicio,
+            onTap: () async {
+              final d = await showDatePicker(
+                context: context,
+                initialDate: prov.dataInicio,
+                firstDate: DateTime(2020),
+                lastDate: DateTime.now(),
+              );
+              if (d != null) prov.configurarFiltros(inicio: d);
+            },
+          ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: startDate,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) {
-                    setState(() => startDate = picked);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Início',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${startDate.day}/${startDate.month}/${startDate.year}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: endDate,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime.now(),
-                  );
-                  if (picked != null) {
-                    setState(() => endDate = picked);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Fim',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${endDate.day}/${endDate.month}/${endDate.year}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+        const SizedBox(width: 12),
+        Expanded(
+          child: _DateTile(
+            label: 'Fim',
+            date: prov.dataFim,
+            onTap: () async {
+              final d = await showDatePicker(
+                context: context,
+                initialDate: prov.dataFim,
+                firstDate: DateTime(2020),
+                lastDate: DateTime.now(),
+              );
+              if (d != null) prov.configurarFiltros(fim: d);
+            },
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildSummaryCards() {
-    final totalIncome = _getTotalIncome();
-    final totalExpense = _getTotalExpenses();
-    final balance = totalIncome - totalExpense;
-
+  Widget _buildSummaryCards(double rec, double des, double bal) {
     return Column(
       children: [
         Row(
           children: [
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Receita',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'R\$ ${totalIncome.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF34C759),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            _SummaryCard(label: 'Receita', value: rec, color: Colors.green),
             const SizedBox(width: 12),
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Despesa',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'R\$ ${totalExpense.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFF3B30),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            _SummaryCard(label: 'Despesa', value: des, color: Colors.red),
           ],
         ),
         const SizedBox(height: 12),
-        Card(
-          color: balance >= 0
-              ? const Color(0xFF34C759)
-              : const Color(0xFFFF3B30),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Saldo',
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
-                Text(
-                  '${balance >= 0 ? '+' : ''} R\$ ${balance.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: bal >= 0 ? Colors.green : Colors.red,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Saldo', style: TextStyle(color: Colors.white)),
+              Text('R\$ ${bal.toStringAsFixed(2)}',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildInsightsSection() {
-    final insights = _generateInsights();
-
+  Widget _buildInsightsSection(double rec, double des) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Insights',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        const Text('Insights', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-        ...insights.map((insight) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                // ignore: deprecated_member_use
-                color: Colors.blue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                // ignore: deprecated_member_use
-                border: Border.all(color: Colors.blue.withOpacity(0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.lightbulb_outline,
-                    color: Colors.blue,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      insight,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
+        _InsightTile(text: 'Sua economia atual é de R\$ ${(rec - des).toStringAsFixed(2)}'),
+        if (rec > 0 && des > rec * 0.8)
+          const _InsightTile(text: 'Alerta! Suas despesas superam 80% da renda.', isAlert: true),
       ],
     );
   }
 
-  Widget _buildCategoryPieChart() {
-    final categoryExpenses = _getCategoryExpenses();
-    if (categoryExpenses.isEmpty) {
-      return const Center(child: Text('Sem dados para o período'));
+  Widget _buildCategoryPieChart(List<Gasto> lista) {
+    final map = <String, double>{};
+    for (var t in lista.where((t) => t.tipo == TipoTransacao.despesa)) {
+      map[t.categoriaId.toString()] = (map[t.categoriaId.toString()] ?? 0) + t.valor;
     }
-
-    final total = categoryExpenses.values.fold(0.0, (sum, val) => sum + val);
-    final colors = [
-      const Color(0xFF0F6FE8),
-      const Color(0xFF34C759),
-      const Color(0xFFFF9500),
-      const Color(0xFFFF3B30),
-      const Color(0xFFAF52DE),
-    ];
+    if (map.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Gastos por Categoria',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        const Text('Despesas por Categoria', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 300,
-                  child: PieChart(
-                    PieChartData(
-                      sections: categoryExpenses.entries
-                          .toList()
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                            final index = entry.key;
-                            final item = entry.value;
-                            final value = item.value;
-                            final percentage = (value / total * 100);
-
-                            return PieChartSectionData(
-                              value: value,
-                              color: colors[index % colors.length],
-                              title: '${percentage.toStringAsFixed(0)}%',
-                              radius: 100,
-                              titleStyle: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            );
-                          })
-                          .toList(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Legenda
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: categoryExpenses.entries
-                      .toList()
-                      .asMap()
-                      .entries
-                      .map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: colors[index % colors.length],
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  item.key,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ),
-                              Text(
-                                'R\$ ${item.value.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      })
-                      .toList(),
-                ),
-              ],
-            ),
-          ),
+        SizedBox(
+          height: 200,
+          child: PieChart(PieChartData(sections: map.entries.map((e) {
+            return PieChartSectionData(value: e.value, title: 'R\$ ${e.value.toStringAsFixed(0)}', radius: 50, color: Colors.blue);
+          }).toList())),
         ),
       ],
     );
   }
 
-  Widget _buildIncomeVsExpenseChart() {
-    final totalIncome = _getTotalIncome();
-    final totalExpense = _getTotalExpenses();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Receita vs Despesa',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              height: 250,
-              child: BarChart(
-                BarChartData(
-                  barGroups: [
-                    BarChartGroupData(
-                      x: 0,
-                      barRods: [
-                        BarChartRodData(
-                          toY: totalIncome,
-                          color: const Color(0xFF34C759),
-                          width: 30,
-                        ),
-                      ],
-                    ),
-                    BarChartGroupData(
-                      x: 1,
-                      barRods: [
-                        BarChartRodData(
-                          toY: totalExpense,
-                          color: const Color(0xFFFF3B30),
-                          width: 30,
-                        ),
-                      ],
-                    ),
-                  ],
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          switch (value.toInt()) {
-                            case 0:
-                              return const Text(
-                                'Receita',
-                                style: TextStyle(fontSize: 12),
-                              );
-                            case 1:
-                              return const Text(
-                                'Despesa',
-                                style: TextStyle(fontSize: 12),
-                              );
-                            default:
-                              return const Text('');
-                          }
-                        },
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            'R\$ ${(value / 1000).toStringAsFixed(0)}k',
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  gridData: const FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+  Widget _buildIncomeVsExpenseChart(double rec, double des) {
+    return SizedBox(
+      height: 200,
+      child: BarChart(BarChartData(barGroups: [
+        BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: rec, color: Colors.green, width: 20)]),
+        BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: des, color: Colors.red, width: 20)]),
+      ])),
     );
   }
+}
 
-  Widget _buildMonthlyBarChart() {
-    final monthlyExpenses = _getMonthlyExpenses();
-    if (monthlyExpenses.isEmpty) {
-      return const Center(child: Text('Sem dados para o período'));
-    }
+class _DateTile extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final VoidCallback onTap;
+  const _DateTile({required this.label, required this.date, required this.onTap});
 
-    final monthNames = [
-      'Jan',
-      'Fev',
-      'Mar',
-      'Abr',
-      'Mai',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Set',
-      'Out',
-      'Nov',
-      'Dez',
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Evolução Financeira (Últimos Meses)',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(border: Border.all(color: Colors.grey[300]!), borderRadius: BorderRadius.circular(8)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text('${date.day}/${date.month}/${date.year}', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
         ),
-        const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              height: 300,
-              child: BarChart(
-                BarChartData(
-                  barGroups: monthlyExpenses.entries
-                      .map(
-                        (entry) => BarChartGroupData(
-                          x: entry.key,
-                          barRods: [
-                            BarChartRodData(
-                              toY: entry.value,
-                              color: const Color(0xFF0F6FE8),
-                              width: 20,
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          final monthIndex = value.toInt() - 1;
-                          if (monthIndex >= 0 &&
-                              monthIndex < monthNames.length) {
-                            return Text(
-                              monthNames[monthIndex],
-                              style: const TextStyle(fontSize: 12),
-                            );
-                          }
-                          return const Text('');
-                        },
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            'R\$ ${(value / 1000).toStringAsFixed(0)}k',
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  gridData: const FlGridData(show: true),
-                  borderData: FlBorderData(show: false),
-                ),
-              ),
-            ),
+      ),
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  final String label;
+  final double value;
+  final Color color;
+  const _SummaryCard({required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text('R\$ ${value.toStringAsFixed(2)}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+            ],
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _InsightTile extends StatelessWidget {
+  final String text;
+  final bool isAlert;
+  const _InsightTile({required this.text, this.isAlert = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isAlert ? Colors.red.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.lightbulb, color: isAlert ? Colors.red : Colors.blue, size: 20),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
+        ],
+      ),
     );
   }
 }

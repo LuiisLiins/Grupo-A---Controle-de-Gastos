@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import '../core/locator.dart';
+import '../providers/auth_provider.dart';
 import '../layouts/app_layout.dart';
 import '../pages/home_page.dart';
 import '../pages/historico_page.dart';
@@ -10,47 +11,25 @@ import '../pages/nova_transacao_page.dart';
 import '../pages/login_page.dart';
 import '../pages/cadastro_page.dart';
 
-class AuthService extends ChangeNotifier {
-  bool _logado = false;
-
-  bool get logado => _logado;
-
-  void login() {
-    _logado = true;
-    notifyListeners();
-  }
-
-  void logout() {
-    _logado = false;
-    notifyListeners();
-  }
-}
-
-final authService = AuthService();
-
 class AppRouter {
   static final router = GoRouter(
     initialLocation: '/',
-    refreshListenable: authService,
-
+    refreshListenable: getIt<AuthProvider>(),
     redirect: (context, state) {
-      final logado = authService.logado;
+      final auth = getIt<AuthProvider>();
+      final logado = auth.estaLogado;
       final indoLogin = state.matchedLocation == '/login';
       final indoCadastro = state.matchedLocation == '/cadastro';
-
       final rotaPublica = indoLogin || indoCadastro;
 
       if (!logado && !rotaPublica) {
         return '/login';
       }
-
       if (logado && rotaPublica) {
         return '/';
       }
-
       return null;
     },
-
     errorBuilder: (context, state) {
       return Scaffold(
         backgroundColor: const Color(0xFFF5F7FB),
@@ -100,7 +79,6 @@ class AppRouter {
         ),
       );
     },
-
     routes: [
       GoRoute(
         path: '/login',
@@ -113,7 +91,6 @@ class AppRouter {
           },
         ),
       ),
-
       GoRoute(
         path: '/cadastro',
         pageBuilder: (context, state) => CustomTransitionPage(
@@ -125,7 +102,6 @@ class AppRouter {
           },
         ),
       ),
-
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AppLayout(
@@ -133,7 +109,6 @@ class AppRouter {
             body: navigationShell,
           );
         },
-
         branches: [
           StatefulShellBranch(
             routes: [
@@ -143,32 +118,28 @@ class AppRouter {
                   key: state.pageKey,
                   child: const HomePage(),
                   transitionDuration: const Duration(milliseconds: 300),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
                 ),
               ),
             ],
           ),
-
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: '/historico',
                 pageBuilder: (context, state) => CustomTransitionPage(
                   key: state.pageKey,
-                  child: HistoricoPage(),
+                  child: const HistoricoPage(),
                   transitionDuration: const Duration(milliseconds: 300),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
                 ),
               ),
             ],
           ),
-
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -177,15 +148,13 @@ class AppRouter {
                   key: state.pageKey,
                   child: const RelatoriosPage(),
                   transitionDuration: const Duration(milliseconds: 300),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
                 ),
               ),
             ],
           ),
-
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -194,17 +163,15 @@ class AppRouter {
                   key: state.pageKey,
                   child: const PerfilPage(),
                   transitionDuration: const Duration(milliseconds: 300),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
                 ),
               ),
             ],
           ),
         ],
       ),
-
       GoRoute(
         path: '/nova-transacao',
         pageBuilder: (context, state) => CustomTransitionPage(
@@ -212,17 +179,15 @@ class AppRouter {
           child: const NovaTransacaoPage(),
           transitionDuration: const Duration(milliseconds: 400),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            final offset =
-                Tween<Offset>(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(
-                  CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  ),
-                );
-
+            final offset = Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              ),
+            );
             return SlideTransition(position: offset, child: child);
           },
         ),

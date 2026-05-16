@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/transacao_provider.dart';
+import '../providers/auth_provider.dart';
+import '../models/gasto.dart';
+import '../models/enums.dart';
 import '../widgets/transacao/tipo_selector.dart';
 import '../widgets/transacao/campo_input.dart';
 import '../widgets/transacao/botao_salvar.dart';
@@ -23,41 +28,38 @@ class _NovaTransacaoPageState extends State<NovaTransacaoPage> {
   String categoria = 'Alimentação';
   String pagamento = 'Pix';
   bool parcelado = false;
-
   DateTime data = DateTime.now();
 
-  final categoriasDespesa = [
-    'Alimentação',
-    'Transporte',
-    'Moradia',
-    'Lazer',
-    'Saúde',
-  ];
+  final categoriasDespesa = ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde'];
+  final categoriasReceita = ['Salário', 'Freelance', 'Extra', 'Investimento'];
+  final pagamentos = ['Pix', 'Cartão', 'Dinheiro', 'Boleto'];
 
-  final categoriasReceita = [
-    'Salário',
-    'Freelance',
-    'Extra',
-    'Investimento',
-  ];
+  void _salvarTransacao() {
+    if (descricaoController.text.isEmpty || valorController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha todos os campos')),
+      );
+      return;
+    }
 
-  final pagamentos = [
-    'Pix',
-    'Cartão',
-    'Dinheiro',
-    'Boleto',
-  ];
+    final novoGasto = Gasto(
+      id: DateTime.now().millisecondsSinceEpoch,
+      descricao: descricaoController.text,
+      valor: double.tryParse(valorController.text.replaceAll(',', '.')) ?? 0.0,
+      data: data,
+      categoriaId: 1, 
+      usuarioId: context.read<AuthProvider>().usuario?.id ?? 0,
+      tipo: tipo == 'Receita' ? TipoTransacao.receita : TipoTransacao.despesa,
+    );
+
+    context.read<TransacaoProvider>().adicionarTransacao(novoGasto);
+    context.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cor = tipo == 'Receita'
-        ? const Color(0xFF34C759)
-        : const Color(0xFFFF3B30);
-
-    final categoriasAtuais =
-        tipo == 'Receita'
-            ? categoriasReceita
-            : categoriasDespesa;
+    final cor = tipo == 'Receita' ? const Color(0xFF34C759) : const Color(0xFFFF3B30);
+    final categoriasAtuais = tipo == 'Receita' ? categoriasReceita : categoriasDespesa;
 
     if (!categoriasAtuais.contains(categoria)) {
       categoria = categoriasAtuais.first;
@@ -65,20 +67,16 @@ class _NovaTransacaoPageState extends State<NovaTransacaoPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
-
       appBar: AppBar(
         title: const Text('Nova Transação'),
         centerTitle: true,
         backgroundColor: const Color(0xFFF5F7FB),
         elevation: 0,
       ),
-
       body: LayoutBuilder(
         builder: (context, constraints) {
           final largura = constraints.maxWidth;
-
-          final isTablet =
-              largura >= 600 && largura < 1100;
+          final isTablet = largura >= 600 && largura < 1100;
           final isDesktop = largura >= 1100;
 
           final paddingHorizontal = isDesktop
@@ -88,163 +86,94 @@ class _NovaTransacaoPageState extends State<NovaTransacaoPage> {
                   : 16.0;
 
           return SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              paddingHorizontal,
-              20,
-              paddingHorizontal,
-              30,
-            ),
+            padding: EdgeInsets.fromLTRB(paddingHorizontal, 20, paddingHorizontal, 30),
             child: Center(
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(maxWidth: 520),
+                constraints: const BoxConstraints(maxWidth: 520),
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        // ignore: deprecated_member_use
-                        color: Colors.black.withOpacity(
-                          0.04,
-                        ),
+                        color: Colors.black.withOpacity(0.04),
                         blurRadius: 24,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TipoSelector(
                         tipoAtual: tipo,
                         onChanged: (value) {
                           setState(() {
                             tipo = value;
-
-                            categoria =
-                                value == 'Receita'
-                                    ? categoriasReceita
-                                        .first
-                                    : categoriasDespesa
-                                        .first;
+                            categoria = value == 'Receita' ? categoriasReceita.first : categoriasDespesa.first;
                           });
                         },
                       ),
-
                       const SizedBox(height: 28),
-
                       const Text(
                         'Informações',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight:
-                              FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-
                       const SizedBox(height: 18),
-
                       CampoInput(
-                        controller:
-                            valorController,
+                        controller: valorController,
                         label: 'Valor',
                         prefixo: 'R\$ ',
                         icon: Icons.attach_money,
                       ),
-
                       const SizedBox(height: 16),
-
                       CampoInput(
-                        controller:
-                            descricaoController,
-                        label:
-                            tipo == 'Receita'
-                                ? 'Origem'
-                                : 'Descrição',
+                        controller: descricaoController,
+                        label: tipo == 'Receita' ? 'Origem' : 'Descrição',
                         icon: Icons.edit_note,
                       ),
-
                       const SizedBox(height: 16),
-
                       CampoDropdown(
                         label: 'Categoria',
                         value: categoria,
                         itens: categoriasAtuais,
                         icon: Icons.category,
-                        onChanged: (v) {
-                          setState(() {
-                            categoria = v!;
-                          });
-                        },
+                        onChanged: (v) => setState(() => categoria = v!),
                       ),
-
                       const SizedBox(height: 16),
-
                       if (tipo == 'Despesa') ...[
                         CampoDropdown(
                           label: 'Pagamento',
                           value: pagamento,
                           itens: pagamentos,
-                          icon:
-                              Icons.credit_card,
-                          onChanged: (v) {
-                            setState(() {
-                              pagamento = v!;
-                            });
-                          },
+                          icon: Icons.credit_card,
+                          onChanged: (v) => setState(() => pagamento = v!),
                         ),
-
                         const SizedBox(height: 16),
-
                         SwitchParcelado(
                           value: parcelado,
-                          onChanged: (v) {
-                            setState(() {
-                              parcelado = v;
-                            });
-                          },
+                          onChanged: (v) => setState(() => parcelado = v),
                         ),
-
                         const SizedBox(height: 16),
                       ],
-
                       CampoData(
                         data: data,
                         onTap: () async {
-                          final nova =
-                              await showDatePicker(
+                          final nova = await showDatePicker(
                             context: context,
                             initialDate: data,
-                            firstDate:
-                                DateTime(2020),
-                            lastDate:
-                                DateTime(2035),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2035),
                           );
-
-                          if (nova != null) {
-                            setState(() {
-                              data = nova;
-                            });
-                          }
+                          if (nova != null) setState(() => data = nova);
                         },
                       ),
-
                       const SizedBox(height: 28),
-
                       BotaoSalvar(
-                        texto:
-                            tipo == 'Receita'
-                                ? 'Salvar Receita'
-                                : 'Salvar Despesa',
+                        texto: tipo == 'Receita' ? 'Salvar Receita' : 'Salvar Despesa',
                         cor: cor,
-                        onPressed: () {
-                          context.pop();
-                        },
+                        onPressed: _salvarTransacao,
                       ),
                     ],
                   ),

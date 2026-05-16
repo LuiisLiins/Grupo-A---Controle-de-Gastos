@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/transacao_provider.dart';
+import '../../models/enums.dart';
 import 'mov_item.dart';
 
 class MovimentacoesCard extends StatelessWidget {
@@ -6,35 +9,34 @@ class MovimentacoesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final transacoes = context.watch<TransacaoProvider>().filtradas;
+    final recentes = transacoes.take(5).toList();
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: const [
-            Align(alignment: Alignment.centerLeft, child: Text('Últimas movimentações', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
-            MovItem(
-              icon: Icons.shopping_cart,
-              titulo: 'Supermercado Silva',
-              sub: '24/10 • Alimentação',
-              valor: '- R\$ 142,50',
-              cor: Colors.red,
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft, 
+              child: Text('Últimas movimentações', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))
             ),
-
-            MovItem(
-              icon: Icons.local_gas_station,
-              titulo: 'Posto Ipiranga',
-              sub: '24/10 • Transporte',
-              valor: '- R\$ 250,00',
-              cor: Colors.red,
-            ),
-
-            MovItem(
-              icon: Icons.attach_money,
-              titulo: 'Salário Mensal',
-              sub: '23/10 • Renda',
-              valor: '+ R\$ 4.500,00',
-              cor: Colors.green,
-            ),
+            if (recentes.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 30),
+                child: Text('Nenhuma movimentação encontrada.', style: TextStyle(color: Colors.grey)),
+              )
+            else
+              ...recentes.map((t) {
+                final isReceita = t.tipo == TipoTransacao.receita;
+                return MovItem(
+                  icon: isReceita ? Icons.attach_money : Icons.shopping_cart,
+                  titulo: t.descricao,
+                  sub: '${t.data.day}/${t.data.month} • Categoria ${t.categoriaId}',
+                  valor: '${isReceita ? '+' : '-'} R\$ ${t.valor.toStringAsFixed(2)}',
+                  cor: isReceita ? Colors.green : Colors.red,
+                );
+              }),
           ],
         ),
       ),

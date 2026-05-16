@@ -1,23 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:gestaodegastos/routes/app_routes.dart';
+import 'package:provider/provider.dart';
+import 'core/locator.dart';
+import 'providers/auth_provider.dart';
+import 'providers/transacao_provider.dart';
+import 'providers/config_provider.dart';
+import 'routes/app_routes.dart';
 
-void main() {
-  runApp(const GestaoGastosApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<TransacaoProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<ConfigProvider>()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
-class GestaoGastosApp extends StatelessWidget {
-  const GestaoGastosApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final config = context.watch<ConfigProvider>();
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Gestão de Gastos',
+      themeMode: config.isDark ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0F6FE8),
-        ),
+        useMaterial3: true,
+        brightness: Brightness.light,
+        colorSchemeSeed: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorSchemeSeed: Colors.blue,
       ),
       routerConfig: AppRouter.router,
     );

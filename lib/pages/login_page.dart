@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart'; // Novo
 
-import '../routes/app_routes.dart';
+import '../providers/auth_provider.dart'; // Novo
 import '../utils/validadores.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,13 +24,12 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     emailController.dispose();
     senhaController.dispose();
-
     _senhaFocus.dispose();
-
     super.dispose();
   }
 
-  void login() {
+  // Mudamos para async para lidar com o login do Provider
+  Future<void> login() async {
     final formularioValido = _formKey.currentState!.validate();
 
     if (!formularioValido) {
@@ -39,18 +39,30 @@ class _LoginPageState extends State<LoginPage> {
     final email = emailController.text.trim();
     final senha = senhaController.text;
 
-    debugPrint(email);
-    debugPrint(senha);
+    try {
+      // Chamamos o login do Provider
+      await context.read<AuthProvider>().login(email, senha);
 
-    authService.login();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Login realizado com sucesso!'),
-      ),
-    );
-
-    context.go('/');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login realizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // O redirecionamento para '/' é feito AUTOMATICAMENTE pelo GoRouter
+        // porque ele está observando o AuthProvider no app_routes.dart
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao realizar login. Tente novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -85,9 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                       size: 62,
                       color: Color(0xFF007AFF),
                     ),
-
                     const SizedBox(height: 18),
-
                     const Text(
                       'Bem-vindo',
                       style: TextStyle(
@@ -95,9 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     const Text(
                       'Entre para continuar',
                       style: TextStyle(
@@ -105,9 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                         color: Color(0xFF8E8E93),
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
                     Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFFF2F2F7),
@@ -119,52 +125,38 @@ class _LoginPageState extends State<LoginPage> {
                             controller: emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-
                             onFieldSubmitted: (_) {
-                              FocusScope.of(
-                                context,
-                              ).requestFocus(_senhaFocus);
+                              FocusScope.of(context).requestFocus(_senhaFocus);
                             },
-
                             decoration: const InputDecoration(
                               hintText: 'E-mail',
                               prefixIcon: Icon(Icons.mail_outline),
                               border: InputBorder.none,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 18),
+                              contentPadding: EdgeInsets.symmetric(vertical: 18),
                             ),
-
                             validator: Validadores.email,
                           ),
-
                           const Divider(height: 1),
-
                           TextFormField(
                             controller: senhaController,
                             focusNode: _senhaFocus,
                             obscureText: true,
                             textInputAction: TextInputAction.done,
-
                             onFieldSubmitted: (_) {
                               login();
                             },
-
                             decoration: const InputDecoration(
                               hintText: 'Senha',
                               prefixIcon: Icon(Icons.lock_outline),
                               border: InputBorder.none,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 18),
+                              contentPadding: EdgeInsets.symmetric(vertical: 18),
                             ),
-
                             validator: Validadores.senha,
                           ),
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -187,9 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
                     TextButton(
                       onPressed: () {},
                       child: const Text(
@@ -200,9 +190,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -213,7 +201,6 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 15,
                           ),
                         ),
-
                         TextButton(
                           onPressed: () {
                             context.go('/cadastro');
@@ -238,4 +225,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-} 
+}
