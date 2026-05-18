@@ -5,23 +5,27 @@ class AuthProvider extends ChangeNotifier {
   Usuario? _usuario;
   bool _estaLogado = false;
 
+  final String _emailCorreto = "luis@gmail.com";
+  final String _senhaCorreta = "123456";
+
   Usuario? get usuario => _usuario;
   bool get estaLogado => _estaLogado;
 
-  // Simula o login
   Future<void> login(String email, String senha) async {
-    // Aqui entraria a chamada para API futuramente
     await Future.delayed(const Duration(seconds: 1));
     
-    _usuario = Usuario(
-      id: 1, 
-      nome: "Luis Lins", 
-      email: email, 
-      criadoEm: DateTime.now()
-    );
-    _estaLogado = true;
-    
-    notifyListeners(); // Isso avisa os widgets para reconstruírem
+    if (email == _emailCorreto && senha == _senhaCorreta) {
+      _usuario = Usuario(
+        id: 1, 
+        nome: "Luis Lins", 
+        email: _emailCorreto, 
+        criadoEm: DateTime.now()
+      );
+      _estaLogado = true;
+      notifyListeners();
+    } else {
+      throw Exception('Credenciais inválidas');
+    }
   }
 
   void logout() {

@@ -12,9 +12,7 @@ class PerfilPage extends StatelessWidget {
     final config = context.watch<ConfigProvider>();
     final auth = context.watch<AuthProvider>();
 
-    final isDark = config.isDark;
-    final theme = Theme.of(context);
-    final textStyle = TextStyle(color: isDark ? Colors.white : Colors.black);
+    Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
